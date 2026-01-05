@@ -15,6 +15,20 @@ app.get('/api/health', (req, res) => {
     timestamp: new Date().toISOString()
   });
 });
+app.post('/user/register', (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({
+      error: 'Email and password are required'
+    })
+  }
+
+  res.status(201).json({
+    message: 'User registered successfully',
+    user: { email }
+  })
+})
 
 // Root Route (optional, just to show something)
 app.get('/', (req, res) => {
