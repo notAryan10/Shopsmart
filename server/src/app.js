@@ -26,7 +26,7 @@ app.post('/user/register', (req, res) => {
 
   res.status(201).json({
     message: 'User registered successfully',
-    user: { email }
+    user: { email 
   })
 })
 
