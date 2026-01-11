@@ -10,5 +10,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: server/npm i
+      - run: npm i
+        working-directory: server
       - run: npm test
+        working-directory: server
