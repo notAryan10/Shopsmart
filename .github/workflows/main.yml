@@ -24,5 +24,5 @@ jobs:
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git revert --no-edit HEAD
-          git commit --amend -m "Revert: Automatic rollback due to CI failure [skip ci]"
+          git commit --amend -m "Revert: Automatic rollback due to CI failure [skip ci]`
           git push
