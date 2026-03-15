@@ -1,38 +1,31 @@
 const express = require('express');
 const cors = require('cors');
 
+const productRoutes = require('./routes/productRoutes');
+const userRoutes = require('./routes/userRoutes');
+const orderRoutes = require('./routes/orderRoutes');
+const creatorRoutes = require('./routes/creatorRoutes');
+
 const app = express();
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 
-// Health Check Route
+app.use('/api/products', productRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/creators', creatorRoutes);
+
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'ok',
-    message: 'ShopSmart Backend is running',
+    message: 'CreatorDrop API is running',
     timestamp: new Date().toISOString()
   });
 });
-app.post('/user/register', (req, res) => {
-  const { email, password } = req.body;
 
-  if (!email || !password) {
-    return res.status(400).json({
-      error: 'Email and password are required'
-    })
-  }
-
-  res.status(201).json({
-    message: 'User registered successfully',
-    user: { email }
-  })
-})
-
-// Root Route (optional, just to show something)
-app.get('/', (req, res) => {
-  res.send('ShopSmart Backend Service');
+app.use((req, res, next) => {
+  res.status(404).json({ error: 'Endpoint not found' });
 });
 
 module.exports = app;
