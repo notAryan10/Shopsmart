@@ -1,159 +1,227 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Rocket, Package, DollarSign, Calendar, Type, Info, CheckCircle2, ChevronRight, LayoutGrid, BarChart3, Settings, ClipboardList } from 'lucide-react';
-import Navbar from '../components/Navbar';
+import { 
+  LayoutDashboard, 
+  PlusSquare, 
+  Activity, 
+  Settings, 
+  BarChart3, 
+  Eye, 
+  Info,
+  Clock,
+  DollarSign,
+  Package
+} from 'lucide-react';
 import DropCard from '../components/DropCard';
 
 const CreatorDashboard = () => {
+  const [activeTab, setActiveTab] = useState('Create Drop');
   const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    price: '',
-    stock: '',
-    type: 'PHYSICAL',
-    dropExpires: '',
-    creatorId: '67c7e52a9202359be26bebfd' 
+    name: 'New Legendary Item',
+    price: 99,
+    stock: 25,
+    timer: '24:00:00',
+    creator: 'Neon Samurai',
+    description: ''
   });
 
-  const [status, setStatus] = useState('idle');
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setStatus('loading');
-    try {
-      await axios.post('http://localhost:5001/api/products', {
-        ...formData,
-        price: parseFloat(formData.price),
-        stock: parseInt(formData.stock)
-      });
-      setStatus('success');
-      setTimeout(() => setStatus('idle'), 3000);
-    } catch (error) {
-      console.error('Error creating drop:', error);
-      setStatus('error');
-    }
-  };
-
-  const inputClass = "w-full bg-black/40 border-2 border-[#2A2A2A] text-white px-4 py-3 font-orbitron text-sm focus:border-orange-500 outline-none transition-arcade placeholder:text-zinc-700";
-  const labelClass = "font-retro text-[8px] text-muted mb-2 flex items-center gap-2 uppercase tracking-tight";
+  const sidebarLinks = [
+    { name: 'Overview', icon: <LayoutDashboard size={18} /> },
+    { name: 'Create Drop', icon: <PlusSquare size={18} /> },
+    { name: 'Active Drops', icon: <Activity size={18} /> },
+    { name: 'Analytics', icon: <BarChart3 size={18} /> },
+    { name: 'Settings', icon: <Settings size={18} /> },
+  ];
 
   return (
-    <div className="min-h-screen bg-[#0E0E0E] flex flex-col">
-      <Navbar />
-      
-      <main className="flex-1 container pt-32 pb-20 flex gap-12" style={{ display: 'flex' }}>
-        <aside className="w-64 hidden lg:flex flex-col gap-4">
-           <SidebarItem icon={<LayoutGrid size={18} />} text="TERMINAL" active />
-           <SidebarItem icon={<Rocket size={18} />} text="CREATE DROP" />
-           <SidebarItem icon={<ClipboardList size={18} />} text="ACTIVE DROPS" />
-           <SidebarItem icon={<BarChart3 size={18} />} text="ANALYTICS" />
-           <SidebarItem icon={<Settings size={18} />} text="PROTOCOLS" />
-           
-           <div className="mt-auto arcade-panel p-6 bg-orange-500/5 border-orange-500/10">
-              <div className="font-retro text-[8px] text-orange-500 mb-2">SHOPKEEPER_LVL</div>
-              <div className="text-3xl font-orbitron font-black text-white">12</div>
-              <div className="mt-4 h-1 bg-white/10 w-full overflow-hidden">
-                 <div className="h-full bg-orange-500 w-[65%]" />
+    <div className="bg-bg-deep min-h-screen flex animate-fade-in">
+      {/* Sidebar */}
+      <aside className="w-72 bg-bg-panel/40 backdrop-blur-xl border-r border-white/5 pt-12 hidden lg:flex flex-col shrink-0 relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-primary-accent via-transparent to-transparent opacity-50" />
+        
+        <div className="px-10 mb-12 flex items-center gap-3">
+          <div className="w-2 h-2 rounded-full bg-primary-accent shadow-[0_0_8px_var(--primary-accent)]" />
+          <p className="text-[10px] font-black text-white uppercase tracking-[0.4em] opacity-80">Command Center</p>
+        </div>
+
+        <nav className="flex flex-col gap-1">
+          {sidebarLinks.map((link) => (
+            <button
+              key={link.name}
+              onClick={() => setActiveTab(link.name)}
+              className={`w-full flex items-center gap-5 px-10 py-5 text-[10px] font-black uppercase tracking-[0.2em] transition-all relative group ${
+                activeTab === link.name 
+                  ? 'text-white bg-white/5' 
+                  : 'text-text-muted hover:text-white hover:bg-white/5'
+              }`}
+            >
+              {activeTab === link.name && (
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-[3px] bg-primary-accent shadow-[0_0_15px_var(--primary-accent)]" />
+              )}
+              <span className={`${activeTab === link.name ? 'text-primary-accent' : 'opacity-40 group-hover:opacity-100'} transition-all`}>
+                {link.icon}
+              </span>
+              {link.name}
+            </button>
+          ))}
+        </nav>
+
+        <div className="mt-auto p-10 pt-4 border-t border-white/5 bg-black/40">
+           <div className="flex items-center gap-4 mb-6">
+              <div className="w-10 h-10 rounded-sm bg-bg-elevated border border-primary-accent/30 flex items-center justify-center text-sm font-black text-primary-accent shadow-inner relative overflow-hidden group">
+                <div className="absolute inset-0 bg-primary-accent/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <span className="relative z-10">N</span>
+              </div>
+              <div className="flex flex-col">
+                 <span className="text-[10px] text-white font-black uppercase tracking-tight">Neon Samurai</span>
+                 <span className="text-[8px] text-primary-accent font-black uppercase tracking-widest">Auth_Level: 01</span>
               </div>
            </div>
-        </aside>
+           <button className="w-full py-3 border border-white/10 hover:border-white/30 text-[9px] text-text-muted hover:text-white uppercase font-black tracking-[0.3em] transition-all rounded-sm">
+             Term_Session.sys
+           </button>
+        </div>
+      </aside>
 
-        <div className="flex-1 flex flex-col lg:flex-row gap-12">
-            
-            <div className="flex-1">
-              <div className="mb-10">
-                <h1 className="text-4xl font-black text-white mb-2 tracking-tight">SHOPKEEPER <span className="text-orange-500">TERMINAL</span></h1>
-                <p className="font-retro text-[10px] text-muted tracking-tight">INITIATING NEW PRODUCT BROADCAST...</p>
+
+      {/* Main Content */}
+      <main className="flex-1 overflow-y-auto">
+        <div className="container py-12">
+          <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+            <div className="flex flex-col gap-2">
+              <h1 className="heading-display text-3xl text-white tracking-widest uppercase">{activeTab}</h1>
+              <p className="text-text-muted text-[10px] uppercase font-bold tracking-[0.3em]">Authorized Access / {activeTab}</p>
+            </div>
+            <div className="flex items-center gap-3 px-4 py-2 bg-primary-accent/5 border border-primary-accent/20 rounded-sm">
+               <div className="w-1.5 h-1.5 rounded-full bg-primary-accent animate-pulse shadow-[0_0_10px_var(--primary-accent)]" />
+               <span className="text-[9px] font-black text-white uppercase tracking-widest">Neural Link Active</span>
+            </div>
+          </header>
+
+          <div className="grid lg:grid-cols-12 gap-12 items-start">
+            {/* Form Section */}
+            <div className="lg:col-span-7 flex flex-col gap-8">
+              <div className="glass-panel p-10 rounded-sm border border-white/5 flex flex-col gap-8">
+                <div className="grid gap-6">
+                  <div className="flex flex-col gap-2">
+                    <label className="text-[10px] font-black text-text-muted uppercase tracking-widest">Drop Designation</label>
+                    <input 
+                      type="text" 
+                      value={formData.name}
+                      onChange={(e) => setFormData({...formData, name: e.target.value})}
+                      className="w-full bg-black/40 border border-white/10 rounded-sm px-5 py-4 text-white focus:outline-none focus:border-primary-accent/50 transition-all font-bold text-sm"
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-6">
+                    <div className="flex flex-col gap-2">
+                      <label className="text-[10px] font-black text-text-muted uppercase tracking-widest">Market Value (USD)</label>
+                      <div className="relative">
+                        <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
+                        <input 
+                          type="number" 
+                          value={formData.price}
+                          onChange={(e) => setFormData({...formData, price: parseInt(e.target.value)})}
+                          className="w-full bg-black/40 border border-white/10 rounded-sm pl-12 pr-5 py-4 text-white focus:outline-none focus:border-primary-accent/50 transition-all font-bold text-sm"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <label className="text-[10px] font-black text-text-muted uppercase tracking-widest">Unit Allocation</label>
+                      <div className="relative">
+                        <Package className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
+                        <input 
+                          type="number" 
+                          value={formData.stock}
+                          onChange={(e) => setFormData({...formData, stock: parseInt(e.target.value)})}
+                          className="w-full bg-black/40 border border-white/10 rounded-sm pl-12 pr-5 py-4 text-white focus:outline-none focus:border-primary-accent/50 transition-all font-bold text-sm"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <label className="text-[10px] font-black text-text-muted uppercase tracking-widest">Drop Window (Duration)</label>
+                    <div className="relative">
+                      <Clock className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
+                      <input 
+                        type="text" 
+                        value={formData.timer}
+                        onChange={(e) => setFormData({...formData, timer: e.target.value})}
+                        className="w-full bg-black/40 border border-white/10 rounded-sm pl-12 pr-5 py-4 text-white focus:outline-none focus:border-primary-accent/50 transition-all font-mono text-sm"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <label className="text-[10px] font-black text-text-muted uppercase tracking-widest">Encrypted Dossier (Description)</label>
+                    <textarea 
+                      rows="4"
+                      className="w-full bg-black/40 border border-white/10 rounded-sm px-5 py-4 text-white focus:outline-none focus:border-primary-accent/50 transition-all text-sm leading-relaxed"
+                      placeholder="Specify the attributes and lore of this acquisition..."
+                      value={formData.description}
+                      onChange={(e) => setFormData({...formData, description: e.target.value})}
+                    ></textarea>
+                  </div>
+                </div>
+
+                <div className="p-5 bg-primary-accent/5 border border-primary-accent/10 rounded-sm flex gap-4">
+                   <Info className="text-primary-accent shrink-0" size={20} />
+                   <p className="text-[10px] text-text-secondary leading-normal font-bold uppercase tracking-wider">
+                     <span className="text-primary-accent">Warning:</span> Drops are finalized upon initiation. 
+                     Sequence verification is mandatory. Protocol 7-B applies to all high-value digital asset transfers.
+                   </p>
+                </div>
+
+                <button className="riot-button w-full h-16 text-xs flex items-center justify-center gap-4 relative overflow-hidden group">
+                  <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 pointer-events-none" />
+                  INITIATE DROP SEQUENCE
+                </button>
+              </div>
+            </div>
+
+            {/* Preview Section */}
+            <div className="lg:col-span-5 flex flex-col gap-8">
+              <div className="flex flex-col gap-4">
+                 <div className="flex items-center gap-3 border-b border-white/5 pb-4">
+                    <Eye size={18} className="text-primary-accent" />
+                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white">Grid Preview</span>
+                 </div>
+                 
+                 <div className="max-w-[340px] mx-auto lg:mx-0">
+                    <DropCard 
+                      id="preview"
+                      name={formData.name}
+                      creator={formData.creator}
+                      price={formData.price}
+                      stock={formData.stock}
+                      timer={formData.timer}
+                    />
+                 </div>
               </div>
 
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="arcade-panel p-8" >
-                <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-                  <div className="grid grid-cols-2 gap-6">
-                    <div>
-                      <label className={labelClass}><Type size={12} /> PRODUCT_NAME</label>
-                      <input type="text" required placeholder="ITEM IDENTIFIER" className={inputClass} value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} />
-                    </div>
-                    <div>
-                      <label className={labelClass}><Package size={12} /> STOCK_CAPACITY</label>
-                      <input type="number" required placeholder="UNITS" className={inputClass} value={formData.stock} onChange={(e) => setFormData({...formData, stock: e.target.value})} />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className={labelClass}><Info size={12} /> CORE_SPECIFICATIONS</label>
-                    <textarea required placeholder="DESCRIBE ITEM DATA..." className={`${inputClass} h-32 resize-none`} value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-6">
-                    <div>
-                      <label className={labelClass}><DollarSign size={12} /> CREDIT_COST</label>
-                      <input type="number" step="0.01" required placeholder="0.00" className={inputClass} value={formData.price} onChange={(e) => setFormData({...formData, price: e.target.value})} />
-                    </div>
-                    <div>
-                      <label className={labelClass}><Calendar size={12} /> EXPIRATION_STAMP</label>
-                      <input type="datetime-local" required className={inputClass} value={formData.dropExpires} onChange={(e) => setFormData({...formData, dropExpires: e.target.value})} />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className={labelClass}>CARGO_TYPE</label>
-                    <div className="flex gap-4">
-                      <button type="button" onClick={() => setFormData({...formData, type: 'PHYSICAL'})} className={`flex-1 p-3 font-orbitron font-bold text-xs border-2 transition-arcade ${formData.type === 'PHYSICAL' ? 'border-orange-500 bg-orange-500/10 text-white shadow-[0_0_10px_rgba(255,122,0,0.3)]' : 'border-[#2A2A2A] text-muted'}`}>
-                        PHYSICAL
-                      </button>
-                      <button type="button" onClick={() => setFormData({...formData, type: 'DIGITAL'})} className={`flex-1 p-3 font-orbitron font-bold text-xs border-2 transition-arcade ${formData.type === 'DIGITAL' ? 'border-orange-500 bg-orange-500/10 text-white shadow-[0_0_10px_rgba(255,122,0,0.3)]' : 'border-[#2A2A2A] text-muted'}`}>
-                        DIGITAL
-                      </button>
-                    </div>
-                  </div>
-
-                  <button type="submit" disabled={status === 'loading'} className="btn-arcade py-5 text-xl justify-center mt-4 w-full">
-                    {status === 'loading' ? 'PROCESSING...' : status === 'success' ? <span className="flex items-center gap-2 font-retro text-xs"><CheckCircle2 size={16} /> BROADCAST_LIVE</span> : <span className="flex items-center gap-2"><Rocket size={20} /> PUBLISH DROP</span>}
-                  </button>
-                </form>
-              </motion.div>
+              <div className="glass-panel p-8 rounded-sm border border-white/5 flex flex-col gap-6">
+                 <h4 className="text-[10px] font-black text-white uppercase tracking-[0.2em] border-b border-white/5 pb-4">Operation Metrics</h4>
+                 <div className="flex flex-col gap-1">
+                    {[
+                      { label: 'Market Reach', value: '12.4K collectors' },
+                      { label: 'Neural Conversion', value: '8.2%', color: 'var(--secondary-accent)' },
+                      { label: 'Global Ranking', value: '#42', color: 'var(--gold-accent)' },
+                    ].map((stat, i) => (
+                      <div key={i} className="flex justify-between items-center py-4 border-b border-white/5 last:border-0">
+                        <span className="text-[10px] text-text-muted uppercase font-bold tracking-widest">{stat.label}</span>
+                        <span className="text-sm font-black text-white uppercase tracking-tight" style={stat.color ? { color: stat.color } : {}}>{stat.value}</span>
+                      </div>
+                    ))}
+                 </div>
+              </div>
             </div>
-
-            <div className="w-full lg:w-80">
-               <div className="mb-6">
-                  <h3 className="font-retro text-xs text-white mb-1">LIVE PREVIEW</h3>
-                  <div className="h-0.5 w-12 bg-orange-500" />
-               </div>
-               
-               <div className="relative pointer-events-none scale-95 origin-top opacity-80 border-2 border-dashed border-white/10 p-2">
-                  <DropCard 
-                    product={{
-                      ...formData,
-                      id: "preview",
-                      price: formData.price || "0.00",
-                      createdAt: new Date().toISOString(),
-                      creator: { email: "shopkeeper@vendora.arcade" }
-                    }}
-                  />
-               </div>
-               
-               <div className="mt-8 arcade-panel p-6 bg-black/40">
-                  <h4 className="font-retro text-[8px] text-muted mb-4">TERMINAL_LOGS</h4>
-                  <div className="flex flex-col gap-2 font-exo text-[10px] text-zinc-600">
-                     <div>&gt; READY_FOR_UPLOADING...</div>
-                     <div>&gt; ASSETS_OPTIMIZED</div>
-                     <div className="text-orange-500/50">&gt; WAITING_FOR_OPERATOR...</div>
-                  </div>
-               </div>
-            </div>
-
+          </div>
         </div>
       </main>
     </div>
   );
 };
 
-const SidebarItem = ({ icon, text, active }) => (
-  <button className={`flex items-center gap-4 px-6 py-4 border-2 transition-arcade ${active ? 'border-orange-500 bg-orange-500/10 text-white shadow-[0_0_10px_rgba(255,122,0,0.2)]' : 'border-transparent text-muted hover:border-[#2A2A2A] hover:bg-white/5'}`}>
-     <div className={active ? 'text-orange-500' : 'text-zinc-500'}>{icon}</div>
-     <span className="font-retro text-[9px] tracking-widest">{text}</span>
-  </button>
-);
-
 export default CreatorDashboard;
+

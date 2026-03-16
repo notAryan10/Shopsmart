@@ -1,80 +1,91 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import Navbar from '../components/Navbar';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Search, Filter, SlidersHorizontal, ChevronDown, Rocket, Zap, Clock } from 'lucide-react';
 import DropCard from '../components/DropCard';
-import { Zap, Filter, Search } from 'lucide-react';
+import LayoutContainer from '../components/LayoutContainer';
 
 const Drops = () => {
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeCategory, setActiveCategory] = useState('All');
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const response = await axios.get('http://localhost:5001/api/products');
-        setProducts(response.data);
-      } catch (error) {
-        console.error('Error fetching drops:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProducts();
-  }, []);
+  const categories = ['All', 'Legendary', 'Verified', 'Coming Soon', 'Secondary'];
+
+  const allDrops = [
+    { id: 1, name: 'Cyber Katana', creator: 'Neon Samurai', price: 89, stock: 12, timer: '02:14:22', category: 'Legendary' },
+    { id: 2, name: 'Void Runner Helmet', creator: 'VoidWalker', price: 120, stock: 5, timer: '05:42:10', category: 'Legendary' },
+    { id: 3, name: 'Plasma Wings', creator: 'Astra', price: 250, stock: 2, timer: '01:10:05', category: 'Legendary' },
+    { id: 4, name: 'Glitch Cloak', creator: 'Err0r', price: 45, stock: 48, timer: '12:00:00', category: 'Verified' },
+    { id: 5, name: 'Neural Link', creator: 'Synapse', price: 75, stock: 15, timer: '24:00:00', category: 'Verified' },
+    { id: 6, name: 'Gravity Boots', creator: 'Orbit', price: 110, stock: 8, timer: '08:15:00', category: 'Verified' },
+  ];
 
   return (
-    <div className="min-h-screen bg-[#0E0E0E]">
-      <Navbar />
-      
-      <main className="container pt-32 pb-20">
-        <div className="flex flex-col md:flex-row items-baseline justify-between gap-6 mb-12 border-b-2 border-[#1A1A1A] pb-8">
+    <div className="bg-bg-deep min-h-screen pt-12 pb-32">
+      <LayoutContainer>
+        {/* Header */}
+        <header className="mb-16">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-12">
             <div>
-              <h1 className="text-5xl font-black text-white uppercase tracking-tighter flex items-center gap-4">
-                <Zap className="text-orange-500" size={40} /> ALL <span className="text-orange-500">DROPS</span>
-              </h1>
-              <div className="font-retro text-[10px] text-muted tracking-tight mt-2">REAL-TIME_LOOT_BROADCAST_FEED</div>
-            </div>
-            
-            <div className="flex items-center gap-4">
-              <div className="arcade-panel flex items-center gap-3 px-4 py-2 bg-black/40">
-                <Search size={16} className="text-zinc-600" />
-                <input className="bg-transparent border-none outline-none font-orbitron text-xs text-white placeholder:text-zinc-800" placeholder="SEARCH_ITEMS..." />
+              <div className="flex items-center gap-3 mb-4">
+                <Rocket size={20} className="text-primary-accent" />
+                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-primary-accent">Global Registry</span>
               </div>
-              <button className="arcade-panel p-2 text-orange-500 hover:bg-orange-500/10">
-                <Filter size={20} />
+              <h1 className="text-5xl font-black text-white tracking-tighter uppercase mb-4">Marketplace</h1>
+              <p className="text-text-secondary text-sm font-medium max-w-md">Browse and acquire authenticated assets from verified creators across the global grid.</p>
+            </div>
+
+            {/* Search */}
+            <div className="relative group w-full md:w-80">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted group-hover:text-primary-accent transition-colors" size={18} />
+              <input 
+                type="text" 
+                placeholder="Search Registry..."
+                className="w-full h-14 bg-white/5 border border-white/10 rounded-sm pl-12 pr-6 text-sm text-white focus:outline-none focus:border-primary-accent transition-all uppercase font-bold tracking-widest placeholder:text-text-muted/50"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+          </div>
+
+          {/* Filters Bar */}
+          <div className="flex flex-wrap items-center justify-between gap-6 p-2 bg-white/5 border border-white/5 rounded-sm backdrop-blur-md">
+            <div className="flex p-1 bg-black/40 rounded-sm">
+              {categories.map(cat => (
+                <button
+                  key={cat}
+                  onClick={() => setActiveCategory(cat)}
+                  className={`px-6 py-2.5 rounded-sm text-[10px] font-black uppercase tracking-widest transition-all ${
+                    activeCategory === cat 
+                    ? 'bg-primary-accent text-white shadow-[0_0_15px_var(--primary-accent)]' 
+                    : 'text-text-muted hover:text-white'
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+
+            <div className="flex items-center gap-4 px-4">
+              <button className="flex items-center gap-2 text-text-muted hover:text-white transition-colors text-[10px] font-black uppercase tracking-widest">
+                <Filter size={14} />
+                Filters
+              </button>
+              <div className="w-[1px] h-4 bg-white/10" />
+              <button className="flex items-center gap-2 text-text-muted hover:text-white transition-colors text-[10px] font-black uppercase tracking-widest">
+                Latest
+                <ChevronDown size={14} />
               </button>
             </div>
+          </div>
+        </header>
+
+        {/* Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+          {allDrops.map((drop, index) => (
+            <DropCard key={drop.id} {...drop} index={index} />
+          ))}
         </div>
-
-        {loading ? (
-          <div className="flex flex-col items-center justify-center py-40 gap-6">
-            <div className="w-16 h-1 bg-[#1A1A1A] overflow-hidden">
-               <div className="h-full bg-orange-500 animate-[p-bar_2s_infinite]" style={{ width: '40%' }} />
-            </div>
-            <div className="font-retro text-[8px] text-orange-500 animate-pulse">CONNECTING_TO_FEED...</div>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-            {products.length > 0 ? (
-              products.map((product) => (
-                <DropCard key={product.id} product={product} />
-              ))
-            ) : (
-              <div className="col-span-full py-40 text-center arcade-panel border-dashed border-[#2A2A2A] bg-transparent">
-                <p className="font-retro text-xs text-muted">NO_ACTIVE_DROPS_DETECTED_IN_SECTOR</p>
-                <div className="mt-4 font-exo text-[10px] text-zinc-600">CHECK_BACK_SHORTLY_FOR_NEW_LOOT</div>
-              </div>
-            )}
-          </div>
-        )}
-      </main>
-
-      <style>{`
-        @keyframes p-bar {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(300%); }
-        }
-      `}</style>
+      </LayoutContainer>
     </div>
   );
 };

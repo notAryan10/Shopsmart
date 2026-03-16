@@ -1,153 +1,129 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import axios from 'axios';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Clock, ShieldCheck, Truck, Zap, ShoppingCart, Rocket, Info, ChevronRight } from 'lucide-react';
-import Navbar from '../components/Navbar';
+import { ShoppingBag, Heart, ShieldCheck, Clock, Share2, Rocket, ArrowLeft, Zap } from 'lucide-react';
+import LayoutContainer from '../components/LayoutContainer';
 
 const ProductDetail = () => {
-  const { id } = useParams();
-  const [product, setProduct] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [timeLeft, setTimeLeft] = useState('');
+    const { id } = useParams();
+    const [selectedSize, setSelectedSize] = useState('M');
 
-  useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        const response = await axios.get(`http://localhost:5001/api/products/${id}`);
-        setProduct(response.data);
-      } catch (error) {
-        console.error('Error fetching product:', error);
-      } finally {
-        setLoading(false);
-      }
+    // Mock data
+    const product = {
+        id: id,
+        name: 'Cyber Katana',
+        creator: 'Neon Samurai',
+        price: 89,
+        stock: 12,
+        maxStock: 50,
+        timer: '02:14:22',
+        description: 'A legendary masterwork forged in the neon-lit depths of the Cyber Citadel. Crafted from high-density plasma-infused steel, this katana is as much a status symbol as it is a weapon.',
+        specs: [
+            { label: 'Rarity', value: 'Legendary', color: 'var(--primary-accent)' },
+            { label: 'Material', value: 'Plasma Steel' },
+            { label: 'Authentication', value: 'Verified Grid-Signed' },
+            { label: 'Release', value: 'Limited Drop #001' },
+        ]
     };
-    fetchProduct();
-  }, [id]);
 
-  useEffect(() => {
-    if (!product) return;
-    const timer = setInterval(() => {
-      const expiration = new Date(product.dropExpires).getTime();
-      const now = new Date().getTime();
-      const distance = expiration - now;
-      if (distance < 0) {
-        setTimeLeft('EXPIRED');
-        clearInterval(timer);
-      } else {
-        const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        const s = Math.floor((distance % (1000 * 60)) / 1000);
-        setTimeLeft(`${h}h ${m}m ${s}s`);
-      }
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [product]);
-
-  if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0E0E0E]">
-      <div className="font-retro text-orange-500 animate-pulse">INITIATING DATA RETRIEVAL...</div>
-    </div>
-  );
-
-  if (!product) return <div className="min-h-screen flex items-center justify-center font-retro text-red-500">ERROR: ITEM_NOT_FOUND</div>;
-
-  const rarity = product.price > 100 ? 'LEGENDARY' : product.price > 50 ? 'EPIC' : product.price > 20 ? 'RARE' : 'COMMON';
-  const rarityColors = {
-    LEGENDARY: { text: '#FFD166', shadow: '0 0 20px #FFD16644' },
-    EPIC: { text: '#A855F7', shadow: '0 0 20px #A855F744' },
-    RARE: { text: '#3B82F6', shadow: '0 0 20px #3B82F644' },
-    COMMON: { text: '#808080', shadow: 'none' }
-  };
-
-  return (
-    <div className="min-h-screen bg-[#0E0E0E]">
-      <Navbar />
-      
-      <main className="container pt-32 pb-20">
-        <Link to="/" className="inline-flex items-center gap-2 font-retro text-[8px] text-muted hover:text-orange-500 mb-10 transition-arcade">
-          <ArrowLeft size={14} /> EXIT TO MARKET
-        </Link>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-stretch">
-          <motion.div  initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} className="arcade-panel overflow-hidden bg-[#121212] flex items-center justify-center p-4 border-4" style={{ borderColor: rarityColors[rarity].text }} >
-            <div className="relative w-full aspect-square group">
-               <img src={product.image || `https://api.placeholder.com/800/800?text=${product.name}`} className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110" alt={product.name} />
-               <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-bottom p-8">
-                  <div className="mt-auto">
-                     <div className="font-retro text-[10px] tracking-wide mb-2" style={{ color: rarityColors[rarity].text }}>{rarity} GRADE LOOT</div>
-                     <div className="h-1 w-24" style={{ backgroundColor: rarityColors[rarity].text }} />
-                  </div>
-               </div>
-            </div>
-          </motion.div>
-
-          <motion.div  initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} className="flex flex-col gap-6" >
-            <div className="arcade-panel p-8">
-               <div className="flex justify-between items-start mb-6">
-                 <div>
-                   <span className="font-retro text-[8px] text-muted mb-2 block uppercase">OBJECT_NAME</span>
-                   <h1 className="text-5xl font-black text-white leading-none">{product.name}</h1>
-                 </div>
-                 <div className="text-right">
-                   <span className="font-retro text-[8px] text-muted mb-2 block">CREDITS</span>
-                   <div className="text-4xl font-black text-orange-500">${product.price}</div>
-                 </div>
-               </div>
-
-               <div className="grid grid-cols-2 gap-4 mb-8">
-                  <div className="bg-[#121212] p-4 border border-white/5 border-l-orange-500 border-l-4">
-                     <span className="font-retro text-[8px] text-muted block mb-1">DATA_STATUS</span>
-                     <span className="font-orbitron font-bold text-white text-sm">ENCRYPTED</span>
-                  </div>
-                  <div className="bg-[#121212] p-4 border border-white/5 border-l-amber-500 border-l-4">
-                     <span className="font-retro text-[8px] text-muted block mb-1">ORIGIN_CODE</span>
-                     <span className="font-orbitron font-bold text-white text-sm">VDR-#{id.slice(0, 4)}</span>
-                  </div>
-               </div>
-
-               <p className="font-exo text-[#A0A0A0] text-lg leading-relaxed mb-8">
-                 {product.description || "NO_DATA_DESCRIPTION_AVAILABLE_FOR_THIS_DROP"}
-               </p>
-
-               <div className="bg-[#1A1A1A] border-2 border-[#2A2A2A] p-6 rounded-sm mb-6 flex items-center justify-between">
-                  <div className="flex flex-col gap-1">
-                     <div className="flex items-center gap-2 text-xs font-retro text-muted uppercase">
-                        <Clock size={12} className="text-orange-500" /> TIME_LOCK
-                     </div>
-                     <div className="text-2xl font-orbitron font-black text-white tracking-widest leading-none mt-2">{timeLeft}</div>
-                  </div>
-                  <div className="w-px h-12 bg-white/10" />
-                  <div className="flex flex-col gap-1 text-right">
-                     <div className="flex items-center gap-2 justify-end text-xs font-retro text-muted uppercase">
-                        STOCK_LIMIT <Zap size={12} className="text-amber-500" />
-                     </div>
-                     <div className="text-2xl font-orbitron font-black text-white leading-none mt-2">{product.stock} UNITS</div>
-                  </div>
-               </div>
-
-               <button className="btn-arcade w-full py-5 text-xl justify-center shadow-[0_0_30px_#FF7A0033]">
-                  CLAIM LOOT <ChevronRight size={24} className="stroke-[3]" />
-               </button>
+    return (
+        <div className="bg-bg-deep min-h-screen pb-32">
+            {/* Context Header */}
+            <div className="border-b border-white/5 bg-white/[0.02] backdrop-blur-xl sticky top-20 z-40 h-16 flex items-center">
+                <LayoutContainer>
+                    <div className="flex items-center gap-6">
+                        <Link to="/drops" className="text-text-muted hover:text-white transition-colors flex items-center gap-2 text-[10px] font-black uppercase tracking-widest">
+                            <ArrowLeft size={16} />
+                            Registry
+                        </Link>
+                        <div className="w-[1px] h-4 bg-white/10" />
+                        <span className="text-white/40 text-[10px] font-black uppercase tracking-[0.3em]">Protocol // {id?.padStart(3, '0') || '001'}</span>
+                    </div>
+                </LayoutContainer>
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
-              <FeatureItem icon={<Rocket size={18} />} text="FAST TRANSMISSION" />
-              <FeatureItem icon={<ShieldCheck size={18} />} text="SECURE PROTOCOL" />
-              <FeatureItem icon={<Info size={18} />} text="AUTHENTIC GEAR" />
-            </div>
-          </motion.div>
+            <LayoutContainer>
+                <div className="grid lg:grid-cols-2 gap-20 py-20 items-start">
+                    {/* Visual Interface */}
+                    <div className="flex flex-col gap-8">
+                        <motion.div 
+                          initial={{ opacity: 0, scale: 0.95 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          className="glass-panel aspect-square rounded-sm overflow-hidden border border-white/10 relative group"
+                        >
+                            <div className="absolute inset-0 bg-gradient-to-br from-primary-accent/10 via-transparent to-secondary-accent/10 opacity-30" />
+                            <div className="flex items-center justify-center h-full">
+                                <Rocket size={200} className="text-white/5 transform -rotate-12 animate-pulse" />
+                            </div>
+                        </motion.div>
+
+                        <div className="grid grid-cols-4 gap-4">
+                            {[1, 2, 3, 4].map(i => (
+                                <div key={i} className="glass-panel aspect-square rounded-sm border border-white/5 hover:border-primary-accent transition-all cursor-pointer opacity-40 hover:opacity-100 p-4">
+                                   <div className="w-full h-full bg-white/5 rounded-sm" />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Data Interface */}
+                    <div className="flex flex-col gap-10">
+                        <div className="flex flex-col gap-4">
+                            <div className="flex items-center gap-3 px-3 py-1 bg-primary-accent/10 border border-primary-accent/20 w-fit rounded-sm">
+                                <Zap size={14} className="text-primary-accent" />
+                                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-primary-accent">Legendary Tier Allocation</span>
+                            </div>
+                            <h1 className="text-6xl font-black text-white tracking-widest uppercase">{product.name}</h1>
+                            <div className="flex items-center gap-4">
+                                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-text-muted">Originator:</span>
+                                <span className="text-[11px] font-black uppercase tracking-[0.4em] text-white underline decoration-primary-accent underline-offset-4 cursor-pointer hover:text-primary-accent transition-colors">{product.creator}</span>
+                            </div>
+                        </div>
+
+                        <p className="text-text-secondary text-lg leading-relaxed">{product.description}</p>
+
+                        <div className="grid grid-cols-2 gap-4">
+                           {product.specs.map(spec => (
+                             <div key={spec.label} className="p-4 bg-white/5 border border-white/10 rounded-sm">
+                                <p className="text-[10px] text-text-muted uppercase tracking-widest mb-1">{spec.label}</p>
+                                <p className="text-sm font-bold text-white uppercase">{spec.value}</p>
+                             </div>
+                           ))}
+                        </div>
+
+                        <div className="flex items-end gap-6 border-b border-white/5 pb-10">
+                            <span className="text-5xl font-[900] text-white tracking-tighter">${product.price}.00</span>
+                        </div>
+
+                        <div className="flex flex-col gap-5">
+                            <button className="riot-button w-full h-20 flex items-center justify-center gap-4 group/buy">
+                                <ShoppingBag size={24} className="group-hover/buy:scale-110 transition-transform" />
+                                <span className="text-sm font-black uppercase tracking-[0.4em]">Initialize Acquisition</span>
+                            </button>
+                            <div className="flex items-center justify-center gap-3 mt-2">
+                               <Clock size={16} className="text-primary-accent" />
+                               <span className="text-xs text-text-muted uppercase font-bold tracking-widest">Drop Terminates in: <span className="text-white">{product.timer}</span></span>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-8 pt-10 border-t border-white/5">
+                            <div className="flex flex-col gap-3 text-white">
+                                <div className="flex items-center gap-2">
+                                    <ShieldCheck size={18} className="text-secondary-accent" />
+                                    <span className="text-[10px] font-black uppercase tracking-widest">Auth Guaranteed</span>
+                                </div>
+                                <p className="text-text-muted text-[10px] leading-relaxed uppercase font-bold tracking-widest">Full cryptographic verification on every physical unit.</p>
+                            </div>
+                            <div className="flex items-center gap-4 ml-auto">
+                                <button className="w-12 h-12 rounded-sm border border-white/10 flex items-center justify-center hover:border-primary-accent transition-colors"><Heart size={20} className="text-white" /></button>
+                                <button className="w-12 h-12 rounded-sm border border-white/10 flex items-center justify-center hover:border-secondary-accent transition-colors"><Share2 size={20} className="text-white" /></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </LayoutContainer>
         </div>
-      </main>
-    </div>
-  );
+    );
 };
-
-const FeatureItem = ({ icon, text }) => (
-  <div className="arcade-panel p-4 flex flex-col items-center gap-2 text-center bg-[#1A1A1A]/50">
-     <div className="text-orange-500">{icon}</div>
-     <span className="font-retro text-[7px] text-muted font-bold leading-tight">{text}</span>
-  </div>
-);
 
 export default ProductDetail;
