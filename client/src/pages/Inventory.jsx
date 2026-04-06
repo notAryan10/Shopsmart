@@ -31,7 +31,6 @@ const Inventory = () => {
   return (
     <div className="bg-bg-deep min-h-screen pt-12 pb-32">
       <LayoutContainer>
-        {/* Header */}
         <header className="mb-20">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-12">
             <div className="flex items-center gap-4">

@@ -17,7 +17,6 @@ const AddProduct = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    // Automatically fetch a creatorId to use for now
     const fetchCreator = async () => {
       try {
         const response = await getCreators();

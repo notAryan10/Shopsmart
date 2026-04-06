@@ -23,6 +23,9 @@ const createProduct = async (req, res) => {
 const getProducts = async (req, res) => {
   try {
     const products = await prisma.product.findMany({
+      orderBy: {
+        createdAt: 'desc'
+      },
       include: {
         creator: {
           select: {

@@ -8,7 +8,6 @@ const ProductDetail = () => {
     const { id } = useParams();
     const [selectedSize, setSelectedSize] = useState('M');
 
-    // Mock data
     const product = {
         id: id,
         name: 'Cyber Katana',
