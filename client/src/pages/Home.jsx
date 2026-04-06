@@ -1,22 +1,35 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Hero from '../components/Hero';
 import DropCard from '../components/DropCard';
 import { TrendingUp, Users, ShoppingCart, Zap } from 'lucide-react';
 import LayoutContainer from '../components/LayoutContainer';
+import { getProducts } from '../api';
 
 const Home = () => {
+  const [featuredDrops, setFeaturedDrops] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await getProducts();
+        setFeaturedDrops(response.data.slice(0, 4));
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
   const stats = [
     { label: 'Live Drops', value: '24', icon: <Zap size={18} />, color: 'var(--primary-accent)' },
     { label: 'Collectors', value: '1.2K', icon: <Users size={18} />, color: 'var(--secondary-accent)' },
     { label: 'Total Claims', value: '8.5K', icon: <ShoppingCart size={18} />, color: 'var(--gold-accent)' },
     { label: 'Market Volume', value: '$450K', icon: <TrendingUp size={18} />, color: '#10b981' },
-  ];
-
-  const featuredDrops = [
-    { id: 1, name: 'Cyber Katana', creator: 'Neon Samurai', price: 89, stock: 12, timer: '02:14:22' },
-    { id: 2, name: 'Void Runner Helmet', creator: 'VoidWalker', price: 120, stock: 5, timer: '05:42:10' },
-    { id: 3, name: 'Plasma Wings', creator: 'Astra', price: 250, stock: 2, timer: '01:10:05' },
-    { id: 4, name: 'Glitch Cloak', creator: 'Err0r', price: 45, stock: 48, timer: '12:00:00' },
   ];
 
   return (
@@ -68,9 +81,13 @@ const Home = () => {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-              {featuredDrops.map((drop, index) => (
-                <DropCard key={drop.id} {...drop} index={index} />
-              ))}
+              {loading ? (
+                <div className="col-span-full text-center text-text-muted">Loading...</div>
+              ) : (
+                featuredDrops.map((drop, index) => (
+                  <DropCard key={drop.id} {...drop} index={index} />
+                ))
+              )}
             </div>
           </section>
 

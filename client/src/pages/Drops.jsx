@@ -1,23 +1,47 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Filter, SlidersHorizontal, ChevronDown, Rocket, Zap, Clock } from 'lucide-react';
 import DropCard from '../components/DropCard';
 import LayoutContainer from '../components/LayoutContainer';
+import { getProducts } from '../api';
 
 const Drops = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
+  const [allDrops, setAllDrops] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const categories = ['All', 'Legendary', 'Verified', 'Coming Soon', 'Secondary'];
 
-  const allDrops = [
-    { id: 1, name: 'Cyber Katana', creator: 'Neon Samurai', price: 89, stock: 12, timer: '02:14:22', category: 'Legendary' },
-    { id: 2, name: 'Void Runner Helmet', creator: 'VoidWalker', price: 120, stock: 5, timer: '05:42:10', category: 'Legendary' },
-    { id: 3, name: 'Plasma Wings', creator: 'Astra', price: 250, stock: 2, timer: '01:10:05', category: 'Legendary' },
-    { id: 4, name: 'Glitch Cloak', creator: 'Err0r', price: 45, stock: 48, timer: '12:00:00', category: 'Verified' },
-    { id: 5, name: 'Neural Link', creator: 'Synapse', price: 75, stock: 15, timer: '24:00:00', category: 'Verified' },
-    { id: 6, name: 'Gravity Boots', creator: 'Orbit', price: 110, stock: 8, timer: '08:15:00', category: 'Verified' },
-  ];
+  useEffect(() => {
+    const fetchDrops = async () => {
+      try {
+        const response = await getProducts();
+        const products = response.data.map(product => ({
+          ...product,
+          creator: product.creator?.email?.split('@')[0] || 'Unknown',
+          category: product.stock > 20 ? 'Verified' : product.stock > 5 ? 'Legendary' : 'Coming Soon',
+          timer: formatTimer(new Date(product.dropExpires))
+        }));
+        setAllDrops(products);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDrops();
+  }, []);
+
+  const formatTimer = (expireDate) => {
+    const now = new Date();
+    const diff = expireDate - now;
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+  };
 
   return (
     <div className="bg-bg-deep min-h-screen pt-12 pb-32">
@@ -81,9 +105,13 @@ const Drops = () => {
 
         {/* Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-          {allDrops.map((drop, index) => (
-            <DropCard key={drop.id} {...drop} index={index} />
-          ))}
+          {loading ? (
+            <div className="col-span-full text-center text-text-muted">Loading drops...</div>
+          ) : (
+            allDrops.map((drop, index) => (
+              <DropCard key={drop.id} {...drop} index={index} />
+            ))
+          )}
         </div>
       </LayoutContainer>
     </div>

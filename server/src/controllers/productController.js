@@ -22,7 +22,16 @@ const createProduct = async (req, res) => {
 
 const getProducts = async (req, res) => {
   try {
-    const products = await prisma.product.findMany();
+    const products = await prisma.product.findMany({
+      include: {
+        creator: {
+          select: {
+            id: true,
+            email: true
+          }
+        }
+      }
+    });
     res.json(products);
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -32,7 +41,17 @@ const getProducts = async (req, res) => {
 const getProductById = async (req, res) => {
   try {
     const { id } = req.params;
-    const product = await prisma.product.findUnique({ where: { id } });
+    const product = await prisma.product.findUnique({
+      where: { id },
+      include: {
+        creator: {
+          select: {
+            id: true,
+            email: true
+          }
+        }
+      }
+    });
     if (!product) return res.status(404).json({ error: 'Product not found' });
     res.json(product);
   } catch (error) {
