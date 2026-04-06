@@ -14,10 +14,17 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: npm i
+      - name: Install dependencies
+        run: npm i
         working-directory: server
-      - run: npm test
+      - name: Generate Prisma Client
+        run: npx prisma generate
         working-directory: server
+      - name: Run tests
+        run: npm test
+        working-directory: server
+        env:
+          DATABASE_URL: mysql://root:password@localhost:3306/test_db
       - name: Rollback
         if: failure()
         run: |
