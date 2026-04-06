@@ -1,29 +1,97 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ShoppingBag, Heart, ShieldCheck, Clock, Share2, Rocket, ArrowLeft, Zap } from 'lucide-react';
+import { ShoppingBag, Heart, ShieldCheck, Clock, Share2, Rocket, ArrowLeft, Zap, AlertCircle } from 'lucide-react';
 import LayoutContainer from '../components/LayoutContainer';
+import { getProductById } from '../api';
 
 const ProductDetail = () => {
     const { id } = useParams();
-    const [selectedSize, setSelectedSize] = useState('M');
+    const [product, setProduct] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [timer, setTimer] = useState('00:00:00');
 
-    const product = {
-        id: id,
-        name: 'Cyber Katana',
-        creator: 'Neon Samurai',
-        price: 89,
-        stock: 12,
-        maxStock: 50,
-        timer: '02:14:22',
-        description: 'A legendary masterwork forged in the neon-lit depths of the Cyber Citadel. Crafted from high-density plasma-infused steel, this katana is as much a status symbol as it is a weapon.',
-        specs: [
-            { label: 'Rarity', value: 'Legendary', color: 'var(--primary-accent)' },
-            { label: 'Material', value: 'Plasma Steel' },
-            { label: 'Authentication', value: 'Verified Grid-Signed' },
-            { label: 'Release', value: 'Limited Drop #001' },
-        ]
+    useEffect(() => {
+        const fetchProduct = async () => {
+            try {
+                setLoading(true);
+                const response = await getProductById(id);
+                setProduct(response.data);
+                setError(null);
+                
+                // Initialize timer
+                if (response.data.dropExpires) {
+                    updateTimer(new Date(response.data.dropExpires));
+                }
+            } catch (err) {
+                console.error('Error fetching product:', err);
+                setError('Failed to load product protocol.');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchProduct();
+    }, [id]);
+
+    useEffect(() => {
+        if (!product?.dropExpires) return;
+
+        const interval = setInterval(() => {
+            updateTimer(new Date(product.dropExpires));
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, [product]);
+
+    const updateTimer = (expireDate) => {
+        const now = new Date();
+        const diff = expireDate - now;
+
+        if (diff <= 0) {
+            setTimer('EXPIRED');
+            return;
+        }
+
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+        setTimer(`${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`);
     };
+
+    if (loading) {
+        return (
+            <div className="bg-bg-deep min-h-screen flex items-center justify-center">
+                <div className="flex flex-col items-center gap-4">
+                    <Rocket size={40} className="text-primary-accent animate-bounce" />
+                    <p className="text-[10px] font-black uppercase tracking-[0.4em] text-text-muted">Fetching Allocation Data...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (error || !product) {
+        return (
+            <div className="bg-bg-deep min-h-screen flex items-center justify-center">
+                <div className="flex flex-col items-center gap-6 glass-panel p-10 border-red-500/20">
+                    <AlertCircle size={40} className="text-red-500" />
+                    <p className="text-sm font-black uppercase tracking-[0.2em] text-white">{error || 'Allocation not found in registry.'}</p>
+                    <Link to="/drops" className="px-6 py-3 bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-white hover:bg-white/10 transition-all">
+                        Return to Registry
+                    </Link>
+                </div>
+            </div>
+        );
+    }
+
+    const rarity = product.stock <= 5 ? 'Legendary' : product.stock <= 20 ? 'Verified' : 'Common';
+    const specs = [
+        { label: 'Rarity', value: rarity, color: product.stock <= 5 ? 'var(--primary-accent)' : 'var(--secondary-accent)' },
+        { label: 'Authentication', value: 'Verified Grid-Signed' },
+        { label: 'Asset Type', value: product.type },
+        { label: 'Protocol ID', value: product.id.slice(0, 8) },
+    ];
 
     return (
         <div className="bg-bg-deep min-h-screen pb-32">
@@ -36,7 +104,7 @@ const ProductDetail = () => {
                             Registry
                         </Link>
                         <div className="w-[1px] h-4 bg-white/10" />
-                        <span className="text-white/40 text-[10px] font-black uppercase tracking-[0.3em]">Protocol // {id?.padStart(3, '0') || '001'}</span>
+                        <span className="text-white/40 text-[10px] font-black uppercase tracking-[0.3em]">Protocol // {product.id.slice(0, 8)}</span>
                     </div>
                 </LayoutContainer>
             </div>
@@ -51,8 +119,8 @@ const ProductDetail = () => {
                           className="glass-panel aspect-square rounded-sm overflow-hidden border border-white/10 relative group"
                         >
                             <div className="absolute inset-0 bg-gradient-to-br from-primary-accent/10 via-transparent to-secondary-accent/10 opacity-30" />
-                            <div className="flex items-center justify-center h-full">
-                                <Rocket size={200} className="text-white/5 transform -rotate-12 animate-pulse" />
+                            <div className="flex items-center justify-center h-full text-white/5">
+                                <Rocket size={200} className="transform -rotate-12 animate-pulse" />
                             </div>
                         </motion.div>
 
@@ -70,22 +138,24 @@ const ProductDetail = () => {
                         <div className="flex flex-col gap-4">
                             <div className="flex items-center gap-3 px-3 py-1 bg-primary-accent/10 border border-primary-accent/20 w-fit rounded-sm">
                                 <Zap size={14} className="text-primary-accent" />
-                                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-primary-accent">Legendary Tier Allocation</span>
+                                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-primary-accent">{rarity} Tier Allocation</span>
                             </div>
                             <h1 className="text-6xl font-black text-white tracking-widest uppercase">{product.name}</h1>
                             <div className="flex items-center gap-4">
                                 <span className="text-[10px] font-black uppercase tracking-[0.4em] text-text-muted">Originator:</span>
-                                <span className="text-[11px] font-black uppercase tracking-[0.4em] text-white underline decoration-primary-accent underline-offset-4 cursor-pointer hover:text-primary-accent transition-colors">{product.creator}</span>
+                                <span className="text-[11px] font-black uppercase tracking-[0.4em] text-white underline decoration-primary-accent underline-offset-4 cursor-pointer hover:text-primary-accent transition-colors">
+                                    {product.creator?.email?.split('@')[0] || 'Unknown'}
+                                </span>
                             </div>
                         </div>
 
-                        <p className="text-text-secondary text-lg leading-relaxed">{product.description}</p>
+                        <p className="text-text-secondary text-lg leading-relaxed">{product.description || 'No additional specifications provided for this asset protocol.'}</p>
 
                         <div className="grid grid-cols-2 gap-4">
-                           {product.specs.map(spec => (
+                           {specs.map(spec => (
                              <div key={spec.label} className="p-4 bg-white/5 border border-white/10 rounded-sm">
                                 <p className="text-[10px] text-text-muted uppercase tracking-widest mb-1">{spec.label}</p>
-                                <p className="text-sm font-bold text-white uppercase">{spec.value}</p>
+                                <p className="text-sm font-bold text-white uppercase" style={{ color: spec.color }}>{spec.value}</p>
                              </div>
                            ))}
                         </div>
@@ -101,7 +171,7 @@ const ProductDetail = () => {
                             </button>
                             <div className="flex items-center justify-center gap-3 mt-2">
                                <Clock size={16} className="text-primary-accent" />
-                               <span className="text-xs text-text-muted uppercase font-bold tracking-widest">Drop Terminates in: <span className="text-white">{product.timer}</span></span>
+                               <span className="text-xs text-text-muted uppercase font-bold tracking-widest">Drop Terminates in: <span className="text-white">{timer}</span></span>
                             </div>
                         </div>
 

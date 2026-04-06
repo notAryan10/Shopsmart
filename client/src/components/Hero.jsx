@@ -11,7 +11,6 @@ const Hero = () => {
       
       <LayoutContainer>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-          {/* Left Content */}
           <motion.div 
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
@@ -47,7 +46,6 @@ const Hero = () => {
 
           </motion.div>
 
-          {/* Right Content: Featured Drop Card */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 30 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}

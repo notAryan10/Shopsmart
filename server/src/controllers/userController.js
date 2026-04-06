@@ -31,7 +31,6 @@ const getUsers = async (req, res) => {
       }
     });
     
-    // Format response with creator-specific fields
     const formattedUsers = users.map(user => ({
       id: user.id,
       email: user.email,
