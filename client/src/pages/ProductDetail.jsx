@@ -20,7 +20,6 @@ const ProductDetail = () => {
                 setProduct(response.data);
                 setError(null);
                 
-                // Initialize timer
                 if (response.data.dropExpires) {
                     updateTimer(new Date(response.data.dropExpires));
                 }
@@ -95,7 +94,6 @@ const ProductDetail = () => {
 
     return (
         <div className="bg-bg-deep min-h-screen pb-32">
-            {/* Context Header */}
             <div className="border-b border-white/5 bg-white/[0.02] backdrop-blur-xl sticky top-20 z-40 h-16 flex items-center">
                 <LayoutContainer>
                     <div className="flex items-center gap-6">
@@ -133,7 +131,6 @@ const ProductDetail = () => {
                         </div>
                     </div>
 
-                    {/* Data Interface */}
                     <div className="flex flex-col gap-10">
                         <div className="flex flex-col gap-4">
                             <div className="flex items-center gap-3 px-3 py-1 bg-primary-accent/10 border border-primary-accent/20 w-fit rounded-sm">
