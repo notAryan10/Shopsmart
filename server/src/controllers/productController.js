@@ -1,6 +1,7 @@
 const prisma = require('../prisma');
 
 const createProduct = async (req, res) => {
+  console.log("POST /api/products - Request Body:", req.body);
   try {
     const { name, description, price, stock, type, dropExpires, creatorId } = req.body;
     const product = await prisma.product.create({
@@ -14,13 +15,16 @@ const createProduct = async (req, res) => {
         creatorId
       }
     });
+    console.log("Product created successfully:", product.id);
     res.status(201).json(product);
   } catch (error) {
+    console.error("Error creating product:", error.message);
     res.status(400).json({ error: error.message });
   }
 };
 
 const getProducts = async (req, res) => {
+  console.log("GET /api/products - Fetching all products");
   try {
     const products = await prisma.product.findMany({
       orderBy: {
@@ -35,8 +39,10 @@ const getProducts = async (req, res) => {
         }
       }
     });
+    console.log(`Found ${products.length} products`);
     res.json(products);
   } catch (error) {
+    console.error("Error fetching products:", error.message);
     res.status(400).json({ error: error.message });
   }
 };
