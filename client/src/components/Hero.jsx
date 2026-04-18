@@ -1,8 +1,11 @@
 import { motion } from 'framer-motion';
 import { ShoppingBag, ArrowRight, Clock, ShieldCheck } from 'lucide-react';
 import LayoutContainer from './LayoutContainer';
+import { useNavigate } from 'react-router-dom';
 
 const Hero = () => {
+  const navigate = useNavigate();
+
   return (
     <section className="relative py-28 overflow-hidden">
       {/* Background Decorative Elements */}
@@ -35,11 +38,17 @@ const Hero = () => {
             </p>
             
             <div className="flex flex-wrap gap-5 pt-4">
-              <button className="riot-button flex items-center gap-4 group/enter h-16 px-10">
+              <button 
+                onClick={() => navigate("/dashboard/create")}
+                className="riot-button flex items-center gap-4 group/enter h-16 px-10"
+              >
                 <span className="text-[11px] font-black uppercase tracking-[0.4em]">Initialize Marketplace</span>
                 <ArrowRight size={20} className="group-hover/enter:translate-x-2 transition-transform" />
               </button>
-              <button className="px-10 h-16 border border-white/10 hover:border-secondary-accent text-white hover:text-secondary-accent text-[11px] font-black uppercase tracking-[0.4em] transition-all bg-white/5 hover:bg-secondary-accent/5 backdrop-blur-sm">
+              <button 
+                onClick={() => navigate("/drops")}
+                className="px-10 h-16 border border-white/10 hover:border-secondary-accent text-white hover:text-secondary-accent text-[11px] font-black uppercase tracking-[0.4em] transition-all bg-white/5 hover:bg-secondary-accent/5 backdrop-blur-sm"
+              >
                 Browse Registry
               </button>
             </div>
